@@ -43,74 +43,90 @@
     </div>
 
     <script>
-        let categories = JSON.parse(localStorage.getItem('fishboneCategories')) || [];
-
-        function openTab(event, tabName) {
-            document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'none');
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabName).style.display = 'block';
-            event.currentTarget.classList.add('active');
-        }
-
-        function addCategory() {
-            let categoryInput = document.getElementById('categoryInput');
-            let categoryName = categoryInput.value.trim();
-
-            if (categoryName === "") {
-                alert("Please enter a category name.");
-                return;
-            }
-
-            if (categories.includes(categoryName)) {
-                alert("Category already exists.");
-                return;
-            }
-
-            categories.push(categoryName);
-            localStorage.setItem('fishboneCategories', JSON.stringify(categories));
-            categoryInput.value = "";
+        document.addEventListener("DOMContentLoaded", function () {
+            let categories = JSON.parse(localStorage.getItem('fishboneCategories')) || [];
             renderCategories();
-        }
 
-        function renderCategories() {
-            let categoryList = document.getElementById('categoryList');
-            categoryList.innerHTML = "";
+            function openTab(event, tabName) {
+                document.querySelectorAll('.tab').forEach(tab => tab.style.display = 'none');
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(tabName).style.display = 'block';
+                event.currentTarget.classList.add('active');
+            }
 
-            categories.forEach(category => {
-                let li = document.createElement('li');
-                li.textContent = category;
-                categoryList.appendChild(li);
-            });
-        }
+            window.openTab = openTab;
 
-        function generateDiagram() {
-            let canvas = document.getElementById('fishboneCanvas');
-            let ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            function addCategory() {
+                let categoryInput = document.getElementById('categoryInput');
+                let categoryName = categoryInput.value.trim();
 
-            ctx.font = "14px Arial";
-            ctx.fillText("Main Problem", 280, 200);
-            
-            let startX = 50, startY = 200;
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(550, startY);
-            ctx.stroke();
+                if (categoryName === "") {
+                    alert("Please enter a category name.");
+                    return;
+                }
 
-            categories.forEach((category, index) => {
-                let yOffset = (index % 2 === 0) ? -40 : 40;
-                let xOffset = (index + 1) * 80;
+                if (categories.includes(categoryName)) {
+                    alert("Category already exists.");
+                    return;
+                }
+
+                categories.push(categoryName);
+                localStorage.setItem('fishboneCategories', JSON.stringify(categories));
+                categoryInput.value = "";
+                renderCategories();
+            }
+
+            window.addCategory = addCategory;
+
+            function renderCategories() {
+                let categoryList = document.getElementById('categoryList');
+                categoryList.innerHTML = "";
+
+                categories.forEach((category, index) => {
+                    let li = document.createElement('li');
+                    li.textContent = category;
+                    let deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = "X";
+                    deleteBtn.style.marginLeft = "10px";
+                    deleteBtn.onclick = function () {
+                        categories.splice(index, 1);
+                        localStorage.setItem('fishboneCategories', JSON.stringify(categories));
+                        renderCategories();
+                    };
+                    li.appendChild(deleteBtn);
+                    categoryList.appendChild(li);
+                });
+            }
+
+            function generateDiagram() {
+                let canvas = document.getElementById('fishboneCanvas');
+                let ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                ctx.font = "14px Arial";
+                ctx.fillText("Main Problem", 280, 200);
                 
+                let startX = 50, startY = 200;
                 ctx.beginPath();
-                ctx.moveTo(startX + xOffset, startY);
-                ctx.lineTo(startX + xOffset, startY + yOffset);
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(550, startY);
                 ctx.stroke();
 
-                ctx.fillText(category, startX + xOffset - 20, startY + yOffset - 10);
-            });
-        }
+                categories.forEach((category, index) => {
+                    let yOffset = (index % 2 === 0) ? -40 : 40;
+                    let xOffset = (index + 1) * 80;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(startX + xOffset, startY);
+                    ctx.lineTo(startX + xOffset, startY + yOffset);
+                    ctx.stroke();
 
-        renderCategories();
+                    ctx.fillText(category, startX + xOffset - 20, startY + yOffset - 10);
+                });
+            }
+
+            window.generateDiagram = generateDiagram;
+        });
     </script>
 
 </body>
